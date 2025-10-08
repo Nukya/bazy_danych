@@ -1,0 +1,105 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+
+Table categories {
+id uuid [primary key, not null]
+name varchar [not null]
+}
+
+Table sub_categories {
+id uuid [primary key, not null]
+name varchar [not null]
+category_id uuid [not null]
+}
+
+Table products {
+id uuid [primary key, not null]
+name varchar [not null]
+sub_category_id uuid [not null]
+}
+
+Table markets {
+id uuid [primary key, not null]
+name varchar [not null]
+}
+
+Table country {
+id uuid [primary key, not null]
+name varchar [not null]
+market_id uuid [not null]
+}
+
+Table states {
+id uuid [primary key, not null]
+name varchar [not null]
+country_id uuid [not null]
+}
+
+Table city {
+id uuid [primary key, not null]
+name varchar [not null]
+state_id uuid [not null]
+}
+
+Table customer {
+id nvarchar [primary key, not null]
+name varchar [not null]
+segment_id uuid [not null]
+}
+
+Table segment {
+id uuid [primary key, not null]
+name varchar [not null]
+}
+
+Table order {
+id uuid [primary key, not null]
+order_date date [not null]
+ship_date date
+ship_mode_id varchar
+customer_id uuid [not null]
+city_id uuid [not null]
+order_product_id uuid [not null]
+}
+
+Table order_product {
+id uuid [primary key, not null]
+quantity int [not null]
+product_id uuid [not null]
+sales	float
+discount float
+profit float
+shipping_cost float [not null]
+
+}
+
+Table ship_mode {
+id uuid [primary key, not null]
+name nvarchar [not null]
+}
+
+Ref: "segment"."id" < "customer"."segment_id"
+
+Ref: "markets"."id" < "country"."market_id"
+
+Ref: "country"."id" < "states"."country_id"
+
+Ref: "states"."id" < "city"."state_id"
+
+Ref: "categories"."id" < "sub_categories"."category_id"
+
+Ref: "sub_categories"."id" < "products"."sub_category_id"
+
+Ref: "city"."id" < "order"."city_id"
+
+
+Ref: "customer"."id" < "order"."customer_id"
+
+
+
+Ref: "ship_mode"."id" < "order"."ship_mode_id"
+
+Ref: "order_product"."id" < "order"."order_product_id"
+
+Ref: "products"."id" < "order_product"."product_id"
