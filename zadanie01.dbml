@@ -44,7 +44,7 @@ postal_code number
 }
 
 Table customer {
-id nvarchar [primary key, not null]
+id uuid [primary key, not null]
 name varchar [not null]
 segment_id uuid [not null]
 }
