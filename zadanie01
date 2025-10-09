@@ -40,6 +40,7 @@ Table city {
 id uuid [primary key, not null]
 name varchar [not null]
 state_id uuid [not null]
+postal_code number
 }
 
 Table customer {
