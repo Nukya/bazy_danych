@@ -1,106 +1,105 @@
 // Use DBML to define your database structure
 // Docs: https://dbml.dbdiagram.io/docs
 
-
 Table categories {
-id uuid [primary key, not null]
-name varchar [not null]
+  id uuid [primary key, not null]
+  name varchar [not null]
 }
 
 Table sub_categories {
-id uuid [primary key, not null]
-name varchar [not null]
-category_id uuid [not null]
+  id uuid [primary key, not null]
+  name varchar [not null]
+  category_id uuid [not null]
 }
 
 Table products {
-id uuid [primary key, not null]
-name varchar [not null]
-sub_category_id uuid [not null]
+  id uuid [primary key, not null]
+  name varchar [not null]
+  sub_category_id uuid [not null]
 }
 
 Table markets {
-id uuid [primary key, not null]
-name varchar [not null]
+  id uuid [primary key, not null]
+  name varchar [not null]
 }
 
-Table country {
-id uuid [primary key, not null]
-name varchar [not null]
-market_id uuid [not null]
+Table countries {
+  id uuid [primary key, not null]
+  name varchar [not null]
+  market_id uuid [not null]
 }
 
 Table states {
-id uuid [primary key, not null]
-name varchar [not null]
-country_id uuid [not null]
+  id uuid [primary key, not null]
+  name varchar [not null]
+  country_id uuid [not null]
 }
 
-Table city {
-id uuid [primary key, not null]
-name varchar [not null]
-state_id uuid [not null]
-postal_code number
+Table cities {
+  id uuid [primary key, not null]
+  name varchar [not null]
+  state_id uuid [not null]
+  postal_code varchar
 }
 
-Table customer {
-id uuid [primary key, not null]
-name varchar [not null]
-segment_id uuid [not null]
+Table segments {
+  id uuid [primary key, not null]
+  name varchar [not null]
 }
 
-Table segment {
-id uuid [primary key, not null]
-name varchar [not null]
+Table customers {
+  id uuid [primary key, not null]
+  name varchar [not null]
+  segment_id uuid [not null]
 }
 
-Table order {
-id uuid [primary key, not null]
-order_date date [not null]
-ship_date date
-ship_mode_id varchar
-customer_id uuid [not null]
-city_id uuid [not null]
-order_product_id uuid [not null]
+Table ship_modes {
+  id uuid [primary key, not null]
+  name varchar [not null]
 }
 
-Table order_product {
-id uuid [primary key, not null]
-quantity int [not null]
-product_id uuid [not null]
-sales	float
-discount float
-profit float
-shipping_cost float [not null]
-
+Table orders {
+  id uuid [primary key, not null]
+  order_date date [not null]
+  ship_date date
+  ship_mode_id uuid [not null]
+  customer_id uuid [not null]
+  city_id uuid [not null]
 }
 
-Table ship_mode {
-id uuid [primary key, not null]
-name nvarchar [not null]
+Table order_products {
+  id uuid [primary key, not null]
+  order_id uuid [not null]
+  product_id uuid [not null]
+  quantity int [not null]
+  sales float
+  discount float
+  profit float
+  shipping_cost float [not null]
 }
 
-Ref: "segment"."id" < "customer"."segment_id"
+// ========================
+// RELATIONS
+// ========================
 
-Ref: "markets"."id" < "country"."market_id"
+Ref: categories.id < sub_categories.category_id
 
-Ref: "country"."id" < "states"."country_id"
+Ref: sub_categories.id < products.sub_category_id
 
-Ref: "states"."id" < "city"."state_id"
+Ref: markets.id < countries.market_id
 
-Ref: "categories"."id" < "sub_categories"."category_id"
+Ref: countries.id < states.country_id
 
-Ref: "sub_categories"."id" < "products"."sub_category_id"
+Ref: states.id < cities.state_id
 
-Ref: "city"."id" < "order"."city_id"
+Ref: segments.id < customers.segment_id
 
+Ref: customers.id < orders.customer_id
 
-Ref: "customer"."id" < "order"."customer_id"
+Ref: cities.id < orders.city_id
 
+Ref: ship_modes.id < orders.ship_mode_id
 
+Ref: orders.id < order_products.order_id
 
-Ref: "ship_mode"."id" < "order"."ship_mode_id"
-
-Ref: "order_product"."id" < "order"."order_product_id"
-
-Ref: "products"."id" < "order_product"."product_id"
+Ref: products.id < order_products.product_id
