@@ -1,3 +1,4 @@
+-- Kinga Kondraciuk 319941
 CREATE DATABASE OrderDB
 
 USE OrderDB
@@ -112,8 +113,8 @@ ADD CONSTRAINT chk_quantity_value CHECK (quantity >= 0);
 ALTER TABLE order_products
 ADD CONSTRAINT chk_discount_value CHECK (discount <= 90);
 
-ALTER TABLE orders
-ADD CONSTRAINT uq_customer_id UNIQUE (customer_id);
+ALTER TABLE products
+ADD CONSTRAINT uq_product_name UNIQUE (name);
 
 
 -- Dodanie tabeli zamówienia
@@ -133,6 +134,7 @@ CREATE TYPE dbo.OrderItemListType AS TABLE
 -- PROCEDURA WSTAWIENIA ZAMÓWIENIA
 GO
 
+-- Deklaracja zmiennych procedury
 CREATE OR ALTER PROCEDURE dbo.CreateCompleteOrder
     @OrderID        UNIQUEIDENTIFIER,
     @OrderDate      DATE,
@@ -146,10 +148,10 @@ CREATE OR ALTER PROCEDURE dbo.CreateCompleteOrder
     @StateName      VARCHAR(100),
     @CityName       VARCHAR(100),
     @PostalCode     VARCHAR(20),
-    @Items          dbo.OrderItemListType READONLY -- TVP: (CategoryName, SubCategoryName, ProductName, Quantity, Discount, Sales, Profit, ShippingCost)
+    @Items          dbo.OrderItemListType READONLY
 AS
 BEGIN
-    SET NOCOUNT ON;
+    SET NOCOUNT ON; -- Wyłącza komunikaty o liczbie zmodyfikowanych wierszy
 
     IF NOT EXISTS (SELECT 1 FROM @Items)
     BEGIN
@@ -189,7 +191,7 @@ BEGIN
             VALUES (@CityID, @CityName, @StateID, @PostalCode);
         END;
 
-        -- Ustal segment klienta
+        -- Ustal segment klienta. Jeśli nie istnieje przydziel id i wstaw do tabeli segmentów
         DECLARE @SegmentID UNIQUEIDENTIFIER = (SELECT id FROM dbo.segments WHERE name = @SegmentName);
         IF @SegmentID IS NULL
         BEGIN
@@ -197,20 +199,20 @@ BEGIN
             INSERT INTO dbo.segments (id, name) VALUES (@SegmentID, @SegmentName);
         END;
 
-        -- Jeśli klient nie został przekazany, wygeneruj nowego
+        -- Jeśli klient nie został przekazany, przydziel nowe id
         IF @CustomerID IS NULL
         BEGIN
             SET @CustomerID = NEWID();
         END;
 
-        -- Jeśli klient o tym ID nie istnieje, utwórz go
+        -- Jeśli klient o podanym ID nie istnieje, utwórz go
         IF NOT EXISTS (SELECT 1 FROM dbo.customers WHERE id = @CustomerID)
         BEGIN
             INSERT INTO dbo.customers (id, name, segment_id)
             VALUES (@CustomerID, @CustomerName, @SegmentID);
         END;
 
-
+        -- Odnajdź id shipmode, jeśli nie istnieje shipmode o podanej nazwie, utwórz id oraz wstaw do tabeli ship_mode
 
         DECLARE @ShipModeID UNIQUEIDENTIFIER = (SELECT id FROM dbo.ship_modes WHERE name = @ShipModeName);
         PRINT 'ShipModeID = ' + CONVERT(varchar(36), @ShipModeID);
@@ -227,11 +229,11 @@ BEGIN
             SET @OrderID = NEWID();
         END;
 
-        -- Tworzymy zamówienie
+        -- Podsumowanie. Wstaw podane lub nowo utworzone wartości do tabeli zamówień
         INSERT INTO dbo.orders (id, order_date, ship_date, ship_mode_id, customer_id, city_id)
         VALUES (@OrderID, @OrderDate, @ShipDate, @ShipModeID, @CustomerID, @CityID);
 
-        -- Kategorie, podkategorie i produkty
+        -- Kategorie, podkategorie i produkty. 
         ;WITH DistinctCats AS (
             SELECT DISTINCT CategoryName FROM @Items
         )
@@ -280,7 +282,7 @@ BEGIN
 
         COMMIT TRANSACTION;
 
-        -- zwracamy podsumowanie
+        -- Informacja zwrotna. Podsumowanie utworzonego zamówienia
         SELECT 
             o.id AS OrderID,
             o.order_date,
