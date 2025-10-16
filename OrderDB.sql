@@ -5,7 +5,7 @@ GO
 USE OrderDB
 GO
 
--- Tworzenie tabel oraz powiązań
+-- Tworzenie tabel oraz relacji
 
 CREATE TABLE categories (
     id uniqueidentifier PRIMARY KEY NOT NULL,
