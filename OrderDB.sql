@@ -1,5 +1,6 @@
 -- Kinga Kondraciuk 319941
 CREATE DATABASE OrderDB
+GO
 
 USE OrderDB
 GO
