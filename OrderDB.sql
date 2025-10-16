@@ -312,8 +312,8 @@ DECLARE @Items dbo.OrderItemListType;
 
 INSERT INTO @Items (CategoryName, SubCategoryName, ProductName, Quantity, Discount, Sales, Profit, ShippingCost)
 VALUES
-('Furniture', 'Chairs', 'Office Chair', 5, 10, 500, 150, 20),
-('Technology', 'Phones', 'iPhone 15', 2, 0, 2400, 600, 10);
+('Furniture', 'Table', 'Dining table', 1, 10, 1000, 150, 20),
+('Technology', 'Headphones', 'XM4', 1, 0, 1200, 600, 10);
 
 -- Wywołanie procedury
 
